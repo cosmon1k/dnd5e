@@ -113,10 +113,11 @@
 
   .effects-element .conditions-list .condition { --border-style: 1px dashed #ddd; }
 
-  &.starting-equipment {
+  &.starting-equipment, &.prerequisites {
     --background-depth-1: var(--dnd5e-background-card);
     --background-depth-2: var(--dnd5e-background-parchment);
     --background-depth-3: color-mix(in oklab, var(--dnd5e-color-card), black 10%);
+    --background-depth-4: color-mix(in oklab, var(--dnd5e-color-card), black 20%);
   }
 
   .currency .distribution slide-toggle { --slide-toggle-track-color-unchecked: var(--dnd5e-color-olive); }

@@ -1,0 +1,20 @@
+<fieldset>
+    <legend>
+        <span>{{ localize "DND5E.Prerequisites.FIELDS.prerequisites.label" }}</span>
+        {{#if editable}}
+        <button type="button" class="unbutton control-button" data-action="showConfiguration" data-tooltip
+                data-config="prerequisites" aria-label="{{ localize 'DND5E.Prerequisites.Configure' }}">
+            <i class="fas fa-cog" inert></i>
+        </button>
+        {{/if}}
+    </legend>
+    {{#if system.prerequisiteConditions.length}}
+    <ul>
+        {{#each system.prerequisiteConditions}}
+        <li>{{ label }}</li>
+        {{/each}}
+    </ul>
+    {{else}}
+    <p class="hint">{{ localize "COMMON.None" }}</p>
+    {{/if}}
+</fieldset>

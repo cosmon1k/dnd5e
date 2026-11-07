@@ -1014,7 +1014,11 @@ export default class CharacterActorSheet extends BaseActorSheet {
       };
     }
 
-    const result = await CompendiumBrowser.selectOne({ filters }, this._detachOptions());
+    const options = { filters };
+    if ( ["feat", "facility"].includes(type) ) options.prerequisites = {
+      validate: item => item.system.validatePrerequisites?.({ actor: this.actor })
+    };
+    const result = await CompendiumBrowser.selectOne(options, this._detachOptions());
     if ( result ) this._onDropCreateItems(event, [new Item.implementation(
       game.items.fromCompendium(await fromUuid(result), { keepId: true })
     )]);

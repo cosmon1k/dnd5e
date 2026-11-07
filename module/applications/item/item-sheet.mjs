@@ -12,6 +12,7 @@ import CreatureTypeConfig from "../shared/creature-type-config.mjs";
 import MovementSensesConfig from "../shared/movement-senses-config.mjs";
 import SourceConfig from "../shared/source-config.mjs";
 import StartingEquipmentConfig from "./config/starting-equipment-config.mjs";
+import PrerequisitesConfig from "./config/prerequisites-config.mjs";
 
 const TextEditor = foundry.applications.ux.TextEditor.implementation;
 
@@ -860,6 +861,8 @@ export default class ItemSheet5e extends PrimarySheetMixin(DocumentSheet5e) {
         return this._renderChild(new SourceConfig({ document: this.item, keyPath: "system.source" }));
       case "starting-equipment":
         return this._renderChild(new StartingEquipmentConfig({ document: this.item }));
+      case "prerequisites":
+        return this._renderChild(new PrerequisitesConfig({ document: this.item }));
       case "type":
         return this._renderChild(new CreatureTypeConfig({ document: this.item, keyPath: "type" }));
     }

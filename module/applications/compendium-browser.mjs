@@ -690,6 +690,7 @@ export default class CompendiumBrowser extends Application5e {
           r.display ||= (result.quiet !== true) || (r.valid === false);
           return r;
         }, { disabled: false, display: false, indeterminate: false, invalid: false, valid: true });
+        context.prerequisites.indeterminate &&= !context.prerequisites.invalid;
         context.prerequisites.results = results;
       }
     }
@@ -703,7 +704,7 @@ export default class CompendiumBrowser extends Application5e {
     element.dataset.tooltipDirection ??= "RIGHT";
     if ( context.prerequisites ) element.dataset.tooltipExtras = game.i18n.getListFormatter({ type: "unit" }).format(
       context.prerequisites.results.values().map(r =>
-        `<span class="prerequisite${r.valid ? " valid" : r.valid === false ? " invalid" : ""}">${r.label}</span>`
+        `<span class="prerequisite${r.valid ? " valid" : r.valid === false ? " invalid" : ""}">${foundry.utils.escapeHTML(r.label)}</span>`
       )
     );
     return element;

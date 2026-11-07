@@ -4215,12 +4215,43 @@
 "DND5E.Preparation": "Preparation",
 "DND5E.Prerequisites": {
   "Header": "Feature Prerequisites",
+  "AddGroup": "Add Group",
+  "ClassHint": "Drop a class here, or leave empty to use character level",
+  "Condition": {
+    "Filter": "Custom Condition",
+    "Item": "Required Item",
+    "None": "None of",
+    "Spell": "Knows at Least One Spell",
+    "Spellcasting": "Spellcasting or Pact Magic Feature",
+    "Text": "Informational Requirement"
+  },
+  "Configure": "Configure Prerequisites",
+  "Display": {
+    "AND": "All of ({conditions})",
+    "NOT": "None of ({conditions})",
+    "OR": "Any of ({conditions})",
+    "Ability": "{ability} {value}+",
+    "ClassLevel": "{name} level {value}+",
+    "Expertise": "Expertise in {name}",
+    "Proficiency": "Proficiency in {name}",
+    "Renown": "Renown {value}+ with {name}",
+    "Size": "Size: {size}"
+  },
+  "EmptyGroup": "Empty prerequisite group",
+  "FilterHint": "Use a filter against the actor's data, for example system.abilities.int.value. A description is shown instead of the filter in the compendium browser.",
+  "Hint": "All top-level conditions must be met, in addition to the item's existing requirements. Add groups to combine alternatives or exclude conditions. Drag entries between groups, or drop an item to require it.",
+  "Invalid": "Invalid prerequisite groups. Check for missing parents, duplicate IDs, or more than four nested levels.",
+  "TextHint": "This requirement is displayed for the player and GM to check. Its result remains unknown and does not prevent selection by itself.",
+  "Unspecified": "Unspecified requirement",
   "FIELDS": {
     "prerequisites": {
       "items": {
         "display": "{items}",
         "hint": "Identifiers for items that the character must have before selecting this item.",
         "label": "Required Items"
+      },
+      "itemsAll": {
+        "hint": "Require all listed items before selecting this feature. Otherwise, any one of them is sufficient."
       },
       "label": "Prerequisites",
       "level": {
@@ -4242,6 +4273,7 @@
     "Valid": "Prerequisite Validation Succeeded"
   },
   "Warning": {
+    "Condition": "must meet the prerequisite: {condition}",
     "InvalidLevel": "must be at least level {level}",
     "Message": "{actor} {requirements} in order to take this {type}.",
     "MissingItem": "must have previously taken {items}",

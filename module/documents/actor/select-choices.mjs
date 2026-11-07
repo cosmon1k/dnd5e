@@ -35,10 +35,11 @@ export default class SelectChoices {
   /**
    * Create a list of form options for this object.
    * @param {object} [options={}]
-   * @param {string} [options.parentLabel]  Category label prefix.
+   * @param {string} [options.parentLabel]              Category label prefix.
+   * @param {boolean} [options.includeCategories=false] Include selectable parent categories alongside their children.
    * @returns {FormSelectOptions[]}
    */
-  asOptions({ parentLabel }={}) {
+  asOptions({ parentLabel, includeCategories=false }={}) {
     const options = [];
     for ( const [value, data] of Object.entries(this) ) {
       const option = {
@@ -49,8 +50,9 @@ export default class SelectChoices {
         disabled: data.disabled ?? false
       };
       if ( data.children ) {
+        if ( includeCategories && (data.selectable !== false) ) options.push(option);
         const newParentLabel = parentLabel ? `${parentLabel} - ${data.label}` : data.label;
-        options.push(...data.children.asOptions({ parentLabel: newParentLabel }));
+        options.push(...data.children.asOptions({ parentLabel: newParentLabel, includeCategories }));
       }
       else options.push(option);
     }

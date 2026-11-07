@@ -1,6 +1,7 @@
 /**
  * @import { UnitValue5e } from "../../../_types.mjs";
  * @import { SourceData, UsesData } from "../../shared/_types.mjs";
+ * @import { default as PrerequisiteData } from "../prerequisite.mjs";
  */
 
 /**
@@ -64,6 +65,12 @@
  * @property {number} price.value         Item's cost in the specified denomination.
  * @property {string} price.denomination  Currency denomination used to determine price.
  * @property {string[]} rarities          Item rarities as defined in `DND5E.itemRarity`.
+ */
+
+/**
+ * @typedef PrerequisitesTemplateData
+ * @property {object} prerequisites
+ * @property {PrerequisiteData[]} prerequisites.conditions  Additional grouped prerequisite conditions.
  */
 
 /**

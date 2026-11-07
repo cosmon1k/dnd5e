@@ -1,0 +1,119 @@
+<div>
+    <div class="form-group">
+        <p class="hint">{{ localize "DND5E.Prerequisites.Hint" }}</p>
+    </div>
+    {{#*inline "prerequisite-level"}}
+    <ul class="flexcol">
+        {{#each entries}}
+        <li data-entry-id="{{ entry._id }}" data-depth="{{ depth }}">
+            <div class="controls flexrow">
+                <select name="{{ prefix }}type" aria-label="{{ localize 'DND5E.Type' }}">
+                    {{ selectOptions validTypes selected=entry.type localize=true }}
+                </select>
+                {{#if @root.editable}}
+                <button type="button" class="unbutton" data-action="delete-entry" data-tooltip
+                        aria-label="{{ localize 'COMMON.Delete' }}">
+                    <i class="fa-solid fa-trash fa-fw" inert></i>
+                </button>
+                {{/if}}
+            </div>
+            {{#if entry.isGroup}}
+                {{> "prerequisite-level" entries=children parent=entry._id depth=depth }}
+            {{else}}
+            <div class="data flexcol">
+                {{#if keyOptions}}
+                <select name="{{ prefix }}key" aria-label="{{ localize 'DND5E.Value' }}">
+                    {{ selectOptions keyOptions selected=entry.key blank="" }}
+                </select>
+                {{else if linked}}
+                <div class="linked-document flexrow">
+                    {{#if linkedUuid}}
+                    {{#if linkedResolved}}
+                    {{{ dnd5e-linkForUuid linkedUuid renderBroken=true }}}
+                    {{else if linkedAnchor}}
+                    {{{ linkedAnchor }}}
+                    {{else}}
+                    <a class="content-link broken" data-uuid="{{ linkedUuid }}">
+                        <i class="fa-solid fa-unlink" inert></i> {{ entry.label }}
+                    </a>
+                    {{/if}}
+                    {{else}}
+                    <div class="drop-area">
+                        {{#if entry.key}}<span>{{ entry.label }}</span>{{/if}}
+                        {{ localize dropHint }}
+                    </div>
+                    {{/if}}
+                    {{#if entry.key}}
+                    {{#if @root.editable}}
+                    <button type="button" class="unbutton" data-action="clear-document" data-tooltip
+                            aria-label="{{ localize 'ELEMENTS.DOCUMENT_TAGS.Remove' }}">
+                        <i class="fa-solid fa-xmark fa-fw" inert></i>
+                    </button>
+                    {{/if}}
+                    {{/if}}
+                </div>
+                <input type="hidden" name="{{ prefix }}key" value="{{ entry.key }}">
+                <input type="hidden" name="{{ prefix }}uuid" value="{{ linkedUuid }}">
+                {{/if}}
+                {{#if number}}
+                <div class="form-group">
+                    <label for="{{ @root.rootId }}-{{ entry._id }}-value">{{ localize numberLabel }}</label>
+                    <div class="form-fields">
+                        {{ numberInput entry.value id=(concat @root.rootId "-" entry._id "-value")
+                                       name=(concat prefix "value") min=0 step=1 }}
+                    </div>
+                </div>
+                {{/if}}
+                {{#if (eq entry.type "proficiency")}}
+                <select name="{{ prefix }}value" data-dtype="Number"
+                        aria-label="{{ localize 'DND5E.ProficiencyLevel' }}">
+                    {{ selectOptions training selected=entry.value localize=true }}
+                </select>
+                {{/if}}
+                {{#if text}}
+                <div class="form-group stacked">
+                    <label for="{{ @root.rootId }}-{{ entry._id }}-text">{{ localize "DND5E.Description" }}</label>
+                    <div class="form-fields">
+                        <textarea id="{{ @root.rootId }}-{{ entry._id }}-text"
+                                  name="{{ prefix }}text">{{ entry.text }}</textarea>
+                    </div>
+                    {{#if (eq entry.type "text")}}
+                    <p class="hint">{{ localize "DND5E.Prerequisites.TextHint" }}</p>
+                    {{/if}}
+                </div>
+                {{/if}}
+                {{#if (eq entry.type "filter")}}
+                <div class="form-group stacked">
+                    <label>{{ localize "DND5E.Prerequisites.Condition.Filter" }}</label>
+                    <div class="form-fields">
+                        {{ formInput fields.filter name=(concat prefix "filter") value=source.filter }}
+                    </div>
+                    <p class="hint">{{ localize "DND5E.Prerequisites.FilterHint" }}</p>
+                </div>
+                {{/if}}
+            </div>
+            {{/if}}
+            {{#if @root.editable}}
+            <div class="drag-bar"><i class="fa-solid fa-grip-lines-vertical" inert></i></div>
+            {{/if}}
+            <input type="hidden" name="{{ prefix }}_id" value="{{ entry._id }}">
+            <input type="hidden" name="{{ prefix }}group" value="{{ entry.group }}">
+            <input type="hidden" name="{{ prefix }}sort" value="{{ entry.sort }}" data-dtype="Number">
+        </li>
+        {{/each}}
+        {{#if @root.editable}}
+        <li class="entry-controls flexrow" data-depth="{{ depth }}">
+            <button type="button" data-action="add-entry">
+                <i class="fa-solid fa-plus" inert></i> {{ localize "DND5E.StartingEquipment.Action.AddEntry" }}
+            </button>
+            {{#if (lt depth 3)}}
+            <button type="button" data-action="add-group">
+                <i class="fa-solid fa-layer-group" inert></i> {{ localize "DND5E.Prerequisites.AddGroup" }}
+            </button>
+            {{/if}}
+        </li>
+        {{/if}}
+    </ul>
+    {{/inline}}
+    {{> "prerequisite-level" entries=entries depth=0 }}
+</div>

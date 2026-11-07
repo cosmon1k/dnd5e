@@ -225,11 +225,11 @@ export default class ItemChoiceAdvancement extends ItemGrantAdvancement {
    * @param {boolean} [options.showMessage=false]  Show a UI message if the validation fails.
    */
   async _evaluatePrerequisites(level, { showMessage=false }={}) {
-    const added = Object.values(this.value.added[level] ?? {}).map(uuid => fromUuidSync(uuid));
     const replaced = this.actor.items.get(this.value.replaced[level]?.original);
     const removed = replaced ? [replaced] : [];
 
     for ( let i = 0; i < 100; i++ ) {
+      const added = Object.values(this.value.added[level] ?? {}).map(uuid => fromUuidSync(uuid));
       const itemsBefore = Object.keys(this.value.added[level] ?? {}).length;
       for ( const [id, uuid] of Object.entries(this.value.added[level] ?? {}) ) {
         const item = this.actor.items.get(id);

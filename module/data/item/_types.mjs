@@ -6,6 +6,7 @@
  * } from "../shared/_types.mjs";
  * @import { ItemTypeData } from "./fields/item-type-field.mjs";
  * @import { SpellcastingFieldData } from "./fields/_types.mjs";
+ * @import { default as PrerequisiteData } from "./prerequisite.mjs";
  */
 
 /**
@@ -108,12 +109,24 @@
  * @property {string} enchant.max                   Maximum number of items that can have this enchantment.
  * @property {string} enchant.period                Frequency at which the enchantment can be swapped.
  * @property {object} prerequisites
+ * @property {PrerequisiteData[]} prerequisites.conditions  Additional grouped prerequisite conditions.
  * @property {Set<string>} prerequisites.items      Items that must be taken first before this item.
+ * @property {boolean} prerequisites.itemsAll       Must all of the required items be taken?
  * @property {number} prerequisites.level           Character or class level required to choose this feature.
  * @property {boolean} prerequisites.repeatable     Can this item be selected more than once?
  * @property {Set<string>} properties               General properties of a feature item.
  * @property {string} requirements                  Actor details required to use this feature.
  * @property {Omit<ItemTypeData, "baseItem">} type  Feature type and subtype.
+ */
+
+/**
+ * @typedef PrerequisiteContext
+ * @property {Actor5e} [actor]      Actor whose data should be evaluated.
+ * @property {Item5e} [item]        Item whose prerequisites are being evaluated.
+ * @property {Item5e[]} [added]     Items pending addition to the actor.
+ * @property {Item5e|Item5e[]} [removed]  Items pending removal from the actor.
+ * @property {Item5e[]} [items]     Projected actor inventory, excluding the evaluated item.
+ * @property {number} [level]       Legacy feature prerequisite level, including class advancement levels.
  */
 
 /**

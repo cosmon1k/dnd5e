@@ -2,6 +2,7 @@ import ItemDataModel from "../abstract/item-data-model.mjs";
 import ItemDescriptionTemplate from "./templates/item-description.mjs";
 import ItemTypeField from "./fields/item-type-field.mjs";
 import ActivitiesTemplate from "./templates/activities.mjs";
+import PrerequisitesTemplate from "./templates/prerequisites.mjs";
 import { staticID } from "../../utils.mjs";
 import OrderActivity from "../../documents/activity/order.mjs";
 
@@ -9,23 +10,30 @@ const { ArrayField, BooleanField, DocumentUUIDField, NumberField, SchemaField, S
 
 /**
  * @import { FacilityItemSystemData } from "./_types.mjs";
- * @import { ActivitiesTemplateData, ItemDescriptionTemplateData } from "./templates/_types.mjs";
+ * @import {
+ *   ActivitiesTemplateData, ItemDescriptionTemplateData, PrerequisitesTemplateData
+ * } from "./templates/_types.mjs";
  */
 
 /**
  * The data definition for Facility items.
- * @extends {ItemDataModel<ActivitiesTemplate & ItemDescriptionTemplate & FacilityItemSystemData>}
+ * @extends {ItemDataModel<
+ *   ActivitiesTemplate & ItemDescriptionTemplate & PrerequisitesTemplate & FacilityItemSystemData
+ * >}
  * @mixes ActivitiesTemplateData
  * @mixes ItemDescriptionTemplateData
+ * @mixes PrerequisitesTemplateData
  * @mixes FacilityItemSystemData
  */
-export default class FacilityData extends ItemDataModel.mixin(ActivitiesTemplate, ItemDescriptionTemplate) {
+export default class FacilityData extends ItemDataModel.mixin(
+  ActivitiesTemplate, ItemDescriptionTemplate, PrerequisitesTemplate
+) {
   /* -------------------------------------------- */
   /*  Model Configuration                         */
   /* -------------------------------------------- */
 
   /** @override */
-  static LOCALIZATION_PREFIXES = ["DND5E.FACILITY", "DND5E.SOURCE"];
+  static LOCALIZATION_PREFIXES = ["DND5E.FACILITY", "DND5E.Prerequisites", "DND5E.SOURCE"];
 
   /* -------------------------------------------- */
 
@@ -222,7 +230,7 @@ export default class FacilityData extends ItemDataModel.mixin(ActivitiesTemplate
     ];
     context.currency = { ...CONFIG.DND5E.currencies[CONFIG.DND5E.defaultCurrency], key: CONFIG.DND5E.defaultCurrency };
 
-    context.parts = ["dnd5e.details-facility"];
+    context.parts = ["dnd5e.details-facility", "dnd5e.details-prerequisites"];
     context.facilitySubtypes = CONFIG.DND5E.facilities.types[this.type.value]?.subtypes ?? {};
     context.orders = Object.entries(CONFIG.DND5E.facilities.orders).reduce((obj, [value, config]) => {
       const { label, basic, hidden } = config;

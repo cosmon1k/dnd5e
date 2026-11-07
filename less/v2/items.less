@@ -561,10 +561,10 @@
 }
 
 /* ----------------------------------------- */
-/*  Starting Equipment Configuration         */
+/*  Starting Equipment & Prerequisites       */
 /* ----------------------------------------- */
 
-.dnd5e2.starting-equipment {
+.dnd5e2.starting-equipment, .dnd5e2.prerequisites {
 
 
   select, input { height: calc(var(--form-field-height) + 1px); }
@@ -587,13 +587,14 @@
     &:has(.drag-bar) { padding-inline-end: 18px; }
     &[data-depth="2"] { background: var(--background-depth-2); }
     &[data-depth="3"] { background: var(--background-depth-3); }
+    &[data-depth="4"] { background: var(--background-depth-4); }
 
     .controls, .data { gap: 4px; }
     .controls {
       justify-content: space-between;
       margin-block-end: 4px;
     }
-    [data-action="delete-entry"] {
+    [data-action="delete-entry"], [data-action="clear-document"] {
       --size: 26px;
       flex: 0 0 var(--size);
       margin: 0;
@@ -623,6 +624,21 @@
         width: 14px;
         height: 14px;
       }
+    }
+  }
+}
+
+.dnd5e2.prerequisites {
+  .entry-controls {
+    gap: 6px;
+    button { width: auto; }
+  }
+  .linked-document {
+    align-items: center;
+    gap: 4px;
+    :is(.content-link, .drop-area) {
+      flex: 1;
+      min-width: 0;
     }
   }
 }

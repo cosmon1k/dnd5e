@@ -113,10 +113,11 @@
   .item-descriptions .description .header button { --control-button-text-color: var(--color-text-light-6); }
   .effects-element .conditions-list .condition { --border-style: 1px dashed var(--dnd5e-color-blue-gray-3); }
 
-  &.starting-equipment {
+  &.starting-equipment, &.prerequisites {
     --background-depth-1: transparent;
     --background-depth-2: var(--dnd5e-background-10);
     --background-depth-3: var(--dnd5e-background-25);
+    --background-depth-4: color-mix(in oklab, var(--dnd5e-background-25), black 20%);
   }
 
   .currency .distribution slide-toggle { --slide-toggle-track-color-unchecked: var(--dnd5e-color-blue-gray-2); }

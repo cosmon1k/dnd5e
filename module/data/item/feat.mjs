@@ -6,6 +6,7 @@ import ActivitiesTemplate from "./templates/activities.mjs";
 import AdvancementTemplate from "./templates/advancement.mjs";
 import ItemDescriptionTemplate from "./templates/item-description.mjs";
 import ItemTypeTemplate from "./templates/item-type.mjs";
+import PrerequisitesTemplate from "./templates/prerequisites.mjs";
 import ItemTypeField from "./fields/item-type-field.mjs";
 
 const { BooleanField, NumberField, SchemaField, SetField, StringField } = foundry.data.fields;
@@ -13,23 +14,26 @@ const { BooleanField, NumberField, SchemaField, SetField, StringField } = foundr
 /**
  * @import { FeatItemSystemData } from "./_types.mjs";
  * @import {
- *   ActivitiesTemplateData, AdvancementTemplateData, ItemDescriptionTemplateData, ItemTypeTemplateData
+ *   ActivitiesTemplateData, AdvancementTemplateData, ItemDescriptionTemplateData, ItemTypeTemplateData,
+ *   PrerequisitesTemplateData
  * } from "./templates/_types.mjs";
  */
 
 /**
  * Data definition for Feature items.
  * @extends {ItemDataModel<
- *   ActivitiesTemplate & AdvancementTemplate & ItemDescriptionTemplate & ItemTypeTemplate & FeatItemSystemData
+ *   ActivitiesTemplate & AdvancementTemplate & ItemDescriptionTemplate & ItemTypeTemplate & PrerequisitesTemplate
+ *   & FeatItemSystemData
  * >}
  * @mixes ActivitiesTemplateData
  * @mixes AdvancementTemplateData
  * @mixes ItemDescriptionTemplateData
  * @mixes ItemTypeTemplateData
+ * @mixes PrerequisitesTemplateData
  * @mixes FeatItemSystemData
  */
 export default class FeatData extends ItemDataModel.mixin(
-  ActivitiesTemplate, AdvancementTemplate, ItemDescriptionTemplate, ItemTypeTemplate
+  ActivitiesTemplate, AdvancementTemplate, ItemDescriptionTemplate, ItemTypeTemplate, PrerequisitesTemplate
 ) {
 
   /* -------------------------------------------- */
@@ -43,22 +47,24 @@ export default class FeatData extends ItemDataModel.mixin(
 
   /** @inheritDoc */
   static defineSchema() {
-    return this.mergeSchema(super.defineSchema(), {
+    const schema = this.mergeSchema(super.defineSchema(), {
       cover: new NumberField({ min: 0, max: 1 }),
       crewed: new BooleanField(),
       enchant: new SchemaField({
         max: new FormulaField({ deterministic: true }),
         period: new StringField()
       }),
-      prerequisites: new SchemaField({
-        items: new SetField(new IdentifierField({ allowType: true })),
-        level: new NumberField({ integer: true, min: 0 }),
-        repeatable: new BooleanField()
-      }),
       properties: new SetField(new StringField()),
       requirements: new StringField({ required: true, nullable: true }),
       type: new ItemTypeField({ baseItem: false })
     });
+    schema.prerequisites.extendFields({
+      items: new SetField(new IdentifierField({ allowType: true })),
+      itemsAll: new BooleanField({ initial: false, label: "DND5E.CLASS.FIELDS.primaryAbility.all.label" }),
+      level: new NumberField({ integer: true, min: 0 }),
+      repeatable: new BooleanField()
+    });
+    return schema;
   }
 
   /* -------------------------------------------- */
@@ -317,7 +323,7 @@ export default class FeatData extends ItemDataModel.mixin(
         placeholder: "DND5E.Requirements" }
     ];
 
-    context.parts = ["dnd5e.details-feat", "dnd5e.field-uses"];
+    context.parts = ["dnd5e.details-feat", "dnd5e.details-prerequisites", "dnd5e.field-uses"];
     const itemTypes = CONFIG.DND5E.featureTypes[this._source.type.value];
     if ( itemTypes ) {
       context.itemType = itemTypes.label;
@@ -343,12 +349,14 @@ export default class FeatData extends ItemDataModel.mixin(
   assertPrerequisites(actor, {
     added=[], level=actor.system?.details?.level, removed=[], showMessage=false, throwError=false
   }={}) {
-    const results = this.validatePrerequisites({ actor, added, level });
+    const results = this.validatePrerequisites({ actor, added, removed, level });
     const messages = [];
 
     if ( results.get("items")?.valid === false ) {
       messages.push(_loc("DND5E.Prerequisites.Warning.MissingItem", {
-        items: game.i18n.getListFormatter({ type: "disjunction" }).format(
+        items: game.i18n.getListFormatter({
+          type: this.prerequisites.itemsAll ? "conjunction" : "disjunction"
+        }).format(
           Array.from(this.prerequisites.items).map(i => dnd5e.registry.items.get(i)?.name ?? i)
         )
       }));
@@ -360,6 +368,12 @@ export default class FeatData extends ItemDataModel.mixin(
 
     if ( results.get("level")?.valid === false ) {
       messages.push(_loc("DND5E.Prerequisites.Warning.InvalidLevel", { level: this.prerequisites.level }));
+    }
+
+    for ( const [key, result] of results ) {
+      if ( key.startsWith("condition:") && (result.valid === false) ) {
+        messages.push(this._getPrerequisiteWarning(key, result));
+      }
     }
 
     if ( !messages.length ) return true;
@@ -407,7 +421,7 @@ export default class FeatData extends ItemDataModel.mixin(
     }
 
     const { actor, added=[], level=actor?.system?.details?.level } = context;
-    const prerequisites = new Map();
+    const prerequisites = super.validatePrerequisites(context);
     const legacy = (this.source.rules === "2014") || (dnd5e.settings.rulesVersion === "legacy") ? "Legacy" : "";
 
     // If a feature has a level pre-requisite, make sure it is less than or equal to current level
@@ -421,14 +435,18 @@ export default class FeatData extends ItemDataModel.mixin(
     });
 
     // If a feature has item pre-requisites, make sure the other items exist on the actor
-    if ( this.prerequisites.items.size ) prerequisites.set("items", {
-      label: _loc("DND5E.Prerequisites.FIELDS.prerequisites.items.display", {
-        items: game.i18n.getListFormatter({ type: "disjunction" }).format(
-          Array.from(this.prerequisites.items).map(i => dnd5e.registry.items.get(i)?.name ?? i)
-        )
-      }),
-      valid: actor ? Array.from(this.prerequisites.items).some(i => actor.identifiedItems.get(i)?.size) : null
-    });
+    if ( this.prerequisites.items.size ) {
+      const items = Array.from(this.prerequisites.items);
+      const all = this.prerequisites.itemsAll;
+      prerequisites.set("items", {
+        label: _loc("DND5E.Prerequisites.FIELDS.prerequisites.items.display", {
+          items: game.i18n.getListFormatter({ type: all ? "conjunction" : "disjunction" }).format(
+            items.map(i => dnd5e.registry.items.get(i)?.name ?? i)
+          )
+        }),
+        valid: actor ? items[all ? "every" : "some"](i => actor.identifiedItems.get(i)?.size) : null
+      });
+    }
 
     // Check to ensure the item doesn't already exist on actor if it is not repeatable
     if ( actor && !this.prerequisites.repeatable && actor.sourcedItems?.get(this.parent.uuid)?.size
